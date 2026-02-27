@@ -15,7 +15,7 @@ public final class KafkaProducerService {
         return project.getService(KafkaProducerService.class);
     }
 
-    public Future<RecordMetadata> publishMessage(ClusterConfig config, String topic, String key, String value, Integer partition) {
+    public Future<RecordMetadata> publishMessage(ClusterConfig config, String topic, String key, String value, Integer partition, Map<String, String> headers) {
         Properties props = new Properties();
         props.putAll(config.getProperties());
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getBootstrapServers());
@@ -30,6 +30,13 @@ public final class KafkaProducerService {
             ProducerRecord<String, String> record = partition != null 
                 ? new ProducerRecord<>(topic, partition, key, value)
                 : new ProducerRecord<>(topic, key, value);
+            
+            if (headers != null) {
+                for (Map.Entry<String, String> entry : headers.entrySet()) {
+                    record.headers().add(entry.getKey(), entry.getValue().getBytes());
+                }
+            }
+            
             return producer.send(record);
         }
     }

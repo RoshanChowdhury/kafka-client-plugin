@@ -14,6 +14,9 @@
         <projectService serviceImplementation="org.roshan.kafka.service.KafkaAdminService"/>
         <projectService serviceImplementation="org.roshan.kafka.service.KafkaProducerService"/>
         <projectService serviceImplementation="org.roshan.kafka.service.KafkaConsumerService"/>
+        <projectService serviceImplementation="org.roshan.kafka.service.KafkaConsumerGroupService"/>
+        <projectService serviceImplementation="org.roshan.kafka.service.SchemaRegistryService"/>
+        <codeInsight.lineMarkerProvider language="JAVA" implementationClass="org.roshan.kafka.integration.KafkaListenerLineMarkerProvider"/>
     </extensions>
 
     <actions>
@@ -22,11 +25,14 @@
             <action id="Kafka.RefreshTopics" class="org.roshan.kafka.action.RefreshTopicsAction" text="Refresh Topics" icon="AllIcons.Actions.Refresh"/>
             <action id="Kafka.CreateTopic" class="org.roshan.kafka.action.CreateTopicAction" text="Create Topic" icon="AllIcons.General.Add"/>
             <action id="Kafka.DeleteTopic" class="org.roshan.kafka.action.DeleteTopicAction" text="Delete Topic" icon="AllIcons.Actions.GC"/>
+            <action id="Kafka.ModifyPartitions" class="org.roshan.kafka.action.ModifyPartitionsAction" text="Modify Partitions" icon="AllIcons.Actions.Edit"/>
             <action id="Kafka.PublishMessage" class="org.roshan.kafka.action.PublishMessageAction" text="Publish Message" icon="AllIcons.Actions.Upload"/>
             <action id="Kafka.ConsumeMessages" class="org.roshan.kafka.action.ConsumeMessagesAction" text="Consume Messages" icon="AllIcons.Actions.Download"/>
             <action id="Kafka.CopyTopic" class="org.roshan.kafka.action.CopyTopicAction" text="Copy Topic" icon="AllIcons.Actions.Copy"/>
             <action id="Kafka.SearchMessages" class="org.roshan.kafka.action.SearchMessagesAction" text="Search Messages" icon="AllIcons.Actions.Search"/>
             <action id="Kafka.BulkGenerate" class="org.roshan.kafka.action.BulkGenerateAction" text="Bulk Generate Messages" icon="AllIcons.Actions.Lightning"/>
+            <action id="Kafka.ConsumerGroup" class="org.roshan.kafka.action.ConsumerGroupAction" text="Consumer Groups" icon="AllIcons.Actions.GroupBy"/>
+            <action id="Kafka.SchemaRegistry" class="org.roshan.kafka.action.SchemaRegistryAction" text="Schema Registry" icon="AllIcons.FileTypes.Json"/>
         </group>
     </actions>
 </idea-plugin>
