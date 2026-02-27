@@ -1,0 +1,32 @@
+<idea-plugin>
+    <id>org.roshan.kafka.client</id>
+    <name>Kafka Client</name>
+    <vendor>Roshan</vendor>
+    <description>Powerful Apache Kafka client for IntelliJ IDEA with multi-cluster support, topic management, message publishing/consuming, and Schema Registry integration</description>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.java</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="Kafka Client" secondary="true" icon="AllIcons.Toolwindows.ToolWindowMessages" 
+                    anchor="right" factoryClass="org.roshan.kafka.ui.KafkaToolWindowFactory"/>
+        <projectService serviceImplementation="org.roshan.kafka.service.KafkaClusterManager"/>
+        <projectService serviceImplementation="org.roshan.kafka.service.KafkaAdminService"/>
+        <projectService serviceImplementation="org.roshan.kafka.service.KafkaProducerService"/>
+        <projectService serviceImplementation="org.roshan.kafka.service.KafkaConsumerService"/>
+    </extensions>
+
+    <actions>
+        <group id="KafkaToolbar" text="Kafka Actions" popup="true">
+            <action id="Kafka.AddCluster" class="org.roshan.kafka.action.AddClusterAction" text="Add Cluster" icon="AllIcons.General.Add"/>
+            <action id="Kafka.RefreshTopics" class="org.roshan.kafka.action.RefreshTopicsAction" text="Refresh Topics" icon="AllIcons.Actions.Refresh"/>
+            <action id="Kafka.CreateTopic" class="org.roshan.kafka.action.CreateTopicAction" text="Create Topic" icon="AllIcons.General.Add"/>
+            <action id="Kafka.DeleteTopic" class="org.roshan.kafka.action.DeleteTopicAction" text="Delete Topic" icon="AllIcons.Actions.GC"/>
+            <action id="Kafka.PublishMessage" class="org.roshan.kafka.action.PublishMessageAction" text="Publish Message" icon="AllIcons.Actions.Upload"/>
+            <action id="Kafka.ConsumeMessages" class="org.roshan.kafka.action.ConsumeMessagesAction" text="Consume Messages" icon="AllIcons.Actions.Download"/>
+            <action id="Kafka.CopyTopic" class="org.roshan.kafka.action.CopyTopicAction" text="Copy Topic" icon="AllIcons.Actions.Copy"/>
+            <action id="Kafka.SearchMessages" class="org.roshan.kafka.action.SearchMessagesAction" text="Search Messages" icon="AllIcons.Actions.Search"/>
+            <action id="Kafka.BulkGenerate" class="org.roshan.kafka.action.BulkGenerateAction" text="Bulk Generate Messages" icon="AllIcons.Actions.Lightning"/>
+        </group>
+    </actions>
+</idea-plugin>
