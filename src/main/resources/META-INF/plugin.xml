@@ -2,7 +2,7 @@
     <id>org.roshan.kafka.client</id>
     <name>Kafka Client</name>
     <vendor>Roshan</vendor>
-    <description>Powerful Apache Kafka client for IntelliJ IDEA with multi-cluster support, topic management, message publishing/consuming, and Schema Registry integration</description>
+    <description>Kafka client for IntelliJ IDEA to help developers and QA publish and consume messages from Kafka clusters</description>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.java</depends>
@@ -23,9 +23,6 @@
         <group id="KafkaToolbar" text="Kafka Actions" popup="true">
             <action id="Kafka.AddCluster" class="org.roshan.kafka.action.AddClusterAction" text="Add Cluster" icon="AllIcons.General.Add"/>
             <action id="Kafka.RefreshTopics" class="org.roshan.kafka.action.RefreshTopicsAction" text="Refresh Topics" icon="AllIcons.Actions.Refresh"/>
-            <action id="Kafka.CreateTopic" class="org.roshan.kafka.action.CreateTopicAction" text="Create Topic" icon="AllIcons.General.Add"/>
-            <action id="Kafka.DeleteTopic" class="org.roshan.kafka.action.DeleteTopicAction" text="Delete Topic" icon="AllIcons.Actions.GC"/>
-            <action id="Kafka.ModifyPartitions" class="org.roshan.kafka.action.ModifyPartitionsAction" text="Modify Partitions" icon="AllIcons.Actions.Edit"/>
             <action id="Kafka.PublishMessage" class="org.roshan.kafka.action.PublishMessageAction" text="Publish Message" icon="AllIcons.Actions.Upload"/>
             <action id="Kafka.ConsumeMessages" class="org.roshan.kafka.action.ConsumeMessagesAction" text="Consume Messages" icon="AllIcons.Actions.Download"/>
             <action id="Kafka.CopyTopic" class="org.roshan.kafka.action.CopyTopicAction" text="Copy Topic" icon="AllIcons.Actions.Copy"/>

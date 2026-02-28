@@ -3,7 +3,6 @@ package org.roshan.kafka.service;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 import org.apache.kafka.clients.producer.*;
-import org.apache.kafka.common.serialization.*;
 import org.roshan.kafka.model.ClusterConfig;
 import java.util.*;
 import java.util.concurrent.Future;
@@ -16,37 +15,35 @@ public final class KafkaProducerService {
     }
 
     public Future<RecordMetadata> publishMessage(ClusterConfig config, String topic, String key, String value, Integer partition, Map<String, String> headers) {
-        Properties props = new Properties();
-        props.putAll(config.getProperties());
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getBootstrapServers());
-        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        Properties props = config.getProperties();
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, config.getKeySerializer());
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, config.getValueSerializer());
         
-        if (config.getSchemaRegistryUrl() != null) {
+        if (config.getSchemaRegistryUrl() != null && !config.getSchemaRegistryUrl().isEmpty()) {
             props.put("schema.registry.url", config.getSchemaRegistryUrl());
         }
 
-        try (KafkaProducer<String, String> producer = new KafkaProducer<>(props)) {
-            ProducerRecord<String, String> record = partition != null 
-                ? new ProducerRecord<>(topic, partition, key, value)
-                : new ProducerRecord<>(topic, key, value);
-            
-            if (headers != null) {
-                for (Map.Entry<String, String> entry : headers.entrySet()) {
-                    record.headers().add(entry.getKey(), entry.getValue().getBytes());
-                }
+        KafkaProducer<String, String> producer = new KafkaProducer<>(props);
+        ProducerRecord<String, String> record = partition != null 
+            ? new ProducerRecord<>(topic, partition, key, value)
+            : new ProducerRecord<>(topic, key, value);
+        
+        if (headers != null) {
+            for (Map.Entry<String, String> entry : headers.entrySet()) {
+                record.headers().add(entry.getKey(), entry.getValue().getBytes());
             }
-            
-            return producer.send(record);
         }
+        
+        Future<RecordMetadata> result = producer.send(record);
+        producer.flush();
+        producer.close();
+        return result;
     }
 
     public void publishBulkMessages(ClusterConfig config, String topic, String template, int count) {
-        Properties props = new Properties();
-        props.putAll(config.getProperties());
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getBootstrapServers());
-        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        Properties props = config.getProperties();
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, config.getKeySerializer());
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, config.getValueSerializer());
         props.put(ProducerConfig.BATCH_SIZE_CONFIG, 16384);
         props.put(ProducerConfig.LINGER_MS_CONFIG, 10);
 
@@ -61,12 +58,12 @@ public final class KafkaProducerService {
     }
 
     public Future<RecordMetadata> publishAvroMessage(ClusterConfig config, String topic, String key, String avroJson) {
-        Properties props = new Properties();
-        props.putAll(config.getProperties());
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getBootstrapServers());
-        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        Properties props = config.getProperties();
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, config.getKeySerializer());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "io.confluent.kafka.serializers.KafkaAvroSerializer");
-        props.put("schema.registry.url", config.getSchemaRegistryUrl());
+        if (config.getSchemaRegistryUrl() != null && !config.getSchemaRegistryUrl().isEmpty()) {
+            props.put("schema.registry.url", config.getSchemaRegistryUrl());
+        }
 
         try (KafkaProducer<String, Object> producer = new KafkaProducer<>(props)) {
             return producer.send(new ProducerRecord<>(topic, key, avroJson));

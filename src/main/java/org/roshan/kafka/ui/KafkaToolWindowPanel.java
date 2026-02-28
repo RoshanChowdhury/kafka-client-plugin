@@ -21,6 +21,8 @@ public class KafkaToolWindowPanel extends SimpleToolWindowPanel {
     private final JBTable messagesTable;
     private final KafkaClusterManager clusterManager;
     private final KafkaAdminService adminService;
+    private ClusterConfig selectedCluster;
+    private String selectedTopic;
 
     public KafkaToolWindowPanel(Project project) {
         super(true, true);
@@ -60,7 +62,17 @@ public class KafkaToolWindowPanel extends SimpleToolWindowPanel {
         clusterTree.addTreeSelectionListener(e -> {
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) clusterTree.getLastSelectedPathComponent();
             if (node != null && node.getUserObject() instanceof ClusterConfig) {
-                loadTopics((ClusterConfig) node.getUserObject());
+                selectedCluster = (ClusterConfig) node.getUserObject();
+                loadTopics(selectedCluster);
+            }
+        });
+
+        topicsTable.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                int row = topicsTable.getSelectedRow();
+                if (row >= 0) {
+                    selectedTopic = (String) topicsTable.getValueAt(row, 0);
+                }
             }
         });
     }
@@ -75,13 +87,21 @@ public class KafkaToolWindowPanel extends SimpleToolWindowPanel {
         ((DefaultTreeModel) clusterTree.getModel()).reload();
     }
 
+    public void refreshTopics() {
+        if (selectedCluster != null) {
+            loadTopics(selectedCluster);
+        }
+    }
+
     private void loadTopics(ClusterConfig config) {
         new Thread(() -> {
             try {
                 List<TopicInfo> topics = adminService.listTopics(config, true);
                 SwingUtilities.invokeLater(() -> updateTopicsTable(topics));
             } catch (Exception ex) {
-                ex.printStackTrace();
+                SwingUtilities.invokeLater(() -> 
+                    com.intellij.openapi.ui.Messages.showErrorDialog(project, 
+                        "Failed to load topics: " + ex.getMessage(), "Error"));
             }
         }).start();
     }
@@ -95,5 +115,24 @@ public class KafkaToolWindowPanel extends SimpleToolWindowPanel {
                 topic.getReplicationFactor(), topic.isInternal()};
         }
         topicsTable.setModel(new javax.swing.table.DefaultTableModel(data, columns));
+    }
+
+    public void updateMessages(List<KafkaMessage> messages) {
+        String[] columns = {"Key", "Value", "Partition", "Offset", "Timestamp"};
+        Object[][] data = new Object[messages.size()][5];
+        for (int i = 0; i < messages.size(); i++) {
+            KafkaMessage msg = messages.get(i);
+            data[i] = new Object[]{msg.getKey(), msg.getValue(), msg.getPartition(), 
+                msg.getOffset(), msg.getTimestamp()};
+        }
+        messagesTable.setModel(new javax.swing.table.DefaultTableModel(data, columns));
+    }
+
+    public ClusterConfig getSelectedCluster() {
+        return selectedCluster;
+    }
+
+    public String getSelectedTopic() {
+        return selectedTopic;
     }
 }

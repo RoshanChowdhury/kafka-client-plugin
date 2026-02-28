@@ -70,9 +70,7 @@ public final class KafkaAdminService {
     }
 
     private AdminClient createAdminClient(ClusterConfig config) {
-        Properties props = new Properties();
-        props.putAll(config.getProperties());
-        props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, config.getBootstrapServers());
+        Properties props = config.getProperties();
         return AdminClient.create(props);
     }
 }

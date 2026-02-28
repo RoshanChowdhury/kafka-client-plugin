@@ -70,9 +70,7 @@ public final class KafkaConsumerGroupService {
     }
 
     private Map<TopicPartition, Long> getEndOffsets(ClusterConfig config, Set<TopicPartition> partitions) {
-        Properties props = new Properties();
-        props.putAll(config.getProperties());
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getBootstrapServers());
+        Properties props = config.getProperties();
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "temp-group-" + UUID.randomUUID());
@@ -83,9 +81,7 @@ public final class KafkaConsumerGroupService {
     }
 
     private AdminClient createAdminClient(ClusterConfig config) {
-        Properties props = new Properties();
-        props.putAll(config.getProperties());
-        props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, config.getBootstrapServers());
+        Properties props = config.getProperties();
         return AdminClient.create(props);
     }
 }

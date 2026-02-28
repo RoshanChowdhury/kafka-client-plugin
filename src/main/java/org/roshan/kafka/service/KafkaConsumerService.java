@@ -4,12 +4,10 @@ import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
-import org.apache.kafka.common.serialization.StringDeserializer;
 import org.roshan.kafka.model.*;
 import java.time.Duration;
 import java.util.*;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Service(Service.Level.PROJECT)
 public final class KafkaConsumerService {
@@ -88,11 +86,9 @@ public final class KafkaConsumerService {
         Properties consumerProps = createConsumerProps(sourceConfig);
         consumerProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         
-        Properties producerProps = new Properties();
-        producerProps.putAll(targetConfig.getProperties());
-        producerProps.put("bootstrap.servers", targetConfig.getBootstrapServers());
-        producerProps.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        producerProps.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        Properties producerProps = targetConfig.getProperties();
+        producerProps.put("key.serializer", targetConfig.getKeySerializer());
+        producerProps.put("value.serializer", targetConfig.getValueSerializer());
         
         try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(consumerProps);
              org.apache.kafka.clients.producer.KafkaProducer<String, String> producer = 
@@ -114,11 +110,9 @@ public final class KafkaConsumerService {
     }
 
     private Properties createConsumerProps(ClusterConfig config) {
-        Properties props = new Properties();
-        props.putAll(config.getProperties());
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getBootstrapServers());
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        Properties props = config.getProperties();
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, config.getKeyDeserializer());
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, config.getValueDeserializer());
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "kafka-client-plugin-" + UUID.randomUUID());
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
         return props;
